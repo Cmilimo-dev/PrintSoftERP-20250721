@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Expired Token</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #dc3545;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover {
+            background-color: #c82333;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .credentials {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid #007bff;
+        }
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Clear Expired Token</h1>
+        
+        <div class="info">
+            <strong>Issue:</strong> Your JWT token has expired, causing 403 Forbidden errors in the frontend.
+        </div>
+
+        <div class="credentials">
+            <h3>Available Login Credentials:</h3>
+            <p><strong>Email:</strong> <code>admin@printsoft.com</code></p>
+            <p><strong>Password:</strong> <code>admin123</code></p>
+            <p><strong>Role:</strong> Super Administrator</p>
+        </div>
+
+        <button onclick="clearToken()">Clear Expired Token</button>
+        
+        <div id="result"></div>
+
+        <div class="info">
+            <h3>Next Steps:</h3>
+            <ol>
+                <li>Click "Clear Expired Token" button above</li>
+                <li>Go back to your PrintSoft ERP frontend</li>
+                <li>You should be redirected to login page</li>
+                <li>Use the credentials above to log in</li>
+                <li>The 403 errors should be resolved</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function clearToken() {
+            try {
+                const oldToken = localStorage.getItem('access_token');
+                const oldUser = localStorage.getItem('user');
+                
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('user');
+                
+                const result = document.getElementById('result');
+                result.innerHTML = `
+                    <div class="success">
+                        <h3>✅ Token Cleared Successfully!</h3>
+                        <p>Removed items from localStorage:</p>
+                        <ul>
+                            <li>access_token ${oldToken ? '(expired token removed)' : '(was empty)'}</li>
+                            <li>user ${oldUser ? '(user data removed)' : '(was empty)'}</li>
+                        </ul>
+                        <p><strong>You can now close this page and return to the PrintSoft ERP frontend.</strong></p>
+                    </div>
+                `;
+            } catch (error) {
+                const result = document.getElementById('result');
+                result.innerHTML = `
+                    <div style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 4px; margin: 10px 0;">
+                        <h3>❌ Error</h3>
+                        <p>Failed to clear token: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Check current token status
+        window.addEventListener('load', function() {
+            const token = localStorage.getItem('access_token');
+            const user = localStorage.getItem('user');
+            
+            if (token || user) {
+                console.log('Current localStorage contents:');
+                console.log('access_token:', token ? 'Present (expired)' : 'Not found');
+                console.log('user:', user ? 'Present' : 'Not found');
+            }
+        });
+    </script>
+</body>
+</html>

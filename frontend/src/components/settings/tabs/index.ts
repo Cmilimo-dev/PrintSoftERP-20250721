@@ -1,0 +1,10 @@
+// Export all tab components for easier importing
+export { default as CompanyInfoTab } from './CompanyInfoTab';
+export { default as NumberGenerationSettingsTab } from './NumberGenerationSettingsTab';
+export { default as AutoNumberingTab } from './AutoNumberingTab';
+export { default as CompanyDisplayTab } from './CompanyDisplayTab';
+export { default as TaxSettingsTab } from './TaxSettingsTab';
+export { default as IntegrationsTab } from './IntegrationsTab';
+export { default as PaymentSettingsTab } from './PaymentSettingsTab';
+export { default as DocumentLayoutTab } from './DocumentLayoutTab';
+export { default as SKUConfigurationTab } from './SKUConfigurationTab';

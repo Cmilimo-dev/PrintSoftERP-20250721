@@ -1,0 +1,389 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mobile-specific utilities */
+@layer utilities {
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  .safe-area-inset {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Better mobile tap targets */
+  .mobile-tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Smooth scrolling for mobile */
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  /* Hide scrollbars on mobile when not needed */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Utility for hiding scrollbars in tab navigation */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Better focus states for mobile */
+  .mobile-focus:focus {
+    outline: 2px solid #3B82F6;
+    outline-offset: 2px;
+  }
+}
+
+/* Mobile-first responsive design improvements */
+@media (max-width: 768px) {
+  /* Make sure text is readable */
+  body {
+    font-size: 16px; /* Prevents zoom on iOS */
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  /* Better button sizing on mobile */
+  button, .btn {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+  
+  /* Better form inputs on mobile */
+  input, textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    min-height: 44px;
+  }
+  
+  /* Card spacing optimization */
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  /* Table improvements for mobile */
+  .table-mobile {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  /* Ensure dashboard cards maintain consistent layout */
+  .dashboard-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  /* Force exact desktop appearance on mobile */
+  .mobile-desktop-exact {
+    /* Override any mobile-specific styles to match desktop exactly */
+    font-size: inherit !important;
+    padding: inherit !important;
+    margin: inherit !important;
+  }
+  
+  /* Dashboard specific improvements */
+  .dashboard-container {
+    padding: 1rem;
+    min-height: 100vh;
+  }
+  
+  /* Consistent card header sizing */
+  .dashboard-card-header {
+    padding: 1.5rem;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    space-y: 0;
+  }
+  
+  /* Consistent card content */
+  .dashboard-card-content {
+    padding: 1.5rem;
+    padding-top: 0;
+  }
+  
+  /* Stats cards should be 2 columns on mobile */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  /* Purchasing module specific mobile improvements */
+  .purchasing-form-mobile {
+    padding: 0.75rem;
+  }
+  
+  .purchasing-table-mobile {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .purchasing-table-mobile table {
+    min-width: 640px;
+    font-size: 0.875rem;
+  }
+  
+  .purchasing-card-mobile {
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .purchasing-grid-mobile {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .purchasing-grid-mobile.two-cols {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  /* Better touch targets for purchasing actions */
+  .purchasing-action-button {
+    min-height: 48px;
+    min-width: 48px;
+    touch-action: manipulation;
+  }
+  
+  /* Supplier and vendor cards on mobile */
+  .vendor-card-mobile {
+    padding: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .vendor-card-mobile:active {
+    background-color: #f3f4f6;
+    transform: scale(0.98);
+  }
+  
+  /* Purchase order status badges mobile */
+  .po-status-badge-mobile {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+  }
+  
+  /* Mobile form section spacing */
+  .mobile-form-section {
+    margin-bottom: 1rem;
+  }
+  
+  .mobile-form-section:last-child {
+    margin-bottom: 2rem;
+  }
+  
+  /* Mobile tab optimization to prevent overlaps */
+  .mobile-tabs-container {
+    width: 100%;
+    overflow-x: auto;
+  }
+  
+  .mobile-tab-item {
+    min-width: 0;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0.5rem 0.25rem;
+    font-size: 0.65rem;
+    line-height: 1.1;
+  }
+  
+  .mobile-tab-item span {
+    display: block;
+    font-size: 0.6rem;
+    line-height: 1;
+    text-align: center;
+  }
+  
+  .mobile-tab-icon {
+    margin: 0 auto 0.25rem;
+    display: block;
+  }
+  
+  /* Purchase order specific mobile improvements */
+  .purchase-tabs-mobile {
+    gap: 0.125rem;
+  }
+  
+  .purchase-tabs-mobile [data-state="active"] {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  /* Mobile table header optimization */
+  .mobile-table-header {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+  }
+  
+  /* Mobile search and filter improvements */
+  .mobile-search-container {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 5;
+    padding: 0.5rem 0;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Force desktop layout on mobile when needed */
+@media (max-width: 768px) {
+  .force-desktop-layout {
+    /* Grid layouts - Stats cards use 2 columns on mobile for readability */
+    .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .grid-cols-1 { grid-template-columns: repeat(1, 1fr) !important; }
+    .grid-cols-2 { grid-template-columns: repeat(2, 1fr) !important; }
+    .grid-cols-3 { grid-template-columns: repeat(2, 1fr) !important; } /* Force 2 cols for better mobile UX */
+    .grid-cols-4 { grid-template-columns: repeat(2, 1fr) !important; } /* Force 2 cols for better mobile UX */
+    
+    /* Text sizes - Slightly smaller for mobile but maintain hierarchy */
+    .text-3xl { font-size: 1.5rem !important; line-height: 2rem !important; }
+    .text-2xl { font-size: 1.25rem !important; line-height: 1.75rem !important; }
+    .text-xl { font-size: 1.125rem !important; line-height: 1.75rem !important; }
+    .text-lg { font-size: 1rem !important; line-height: 1.5rem !important; }
+    
+    /* Padding and margins - Optimize for mobile */
+    .p-6 { padding: 1rem !important; }
+    .p-4 { padding: 0.75rem !important; }
+    .px-6 { padding-left: 1rem !important; padding-right: 1rem !important; }
+    .py-6 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+    
+    /* Card specific optimizations */
+    .dashboard-card-header { padding: 1rem !important; }
+    .dashboard-card-content { padding: 1rem !important; padding-top: 0 !important; }
+    
+    /* Gap optimizations */
+    .gap-6 { gap: 1rem !important; }
+    .gap-4 { gap: 0.75rem !important; }
+    .space-y-6 > * + * { margin-top: 1rem !important; }
+  }
+}
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

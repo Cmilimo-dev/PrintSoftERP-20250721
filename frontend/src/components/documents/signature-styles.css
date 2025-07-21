@@ -1,0 +1,81 @@
+/* Signature component styles */
+.signature-container {
+  font-family: 'Arial', 'Helvetica', sans-serif;
+}
+
+.signature-script {
+  font-family: 'Brush Script MT', 'Lucida Handwriting', 'Apple Chancery', cursive;
+  font-style: italic;
+  transform: rotate(-2deg);
+  display: inline-block;
+}
+
+.signature-line {
+  border-bottom: 1px solid #333;
+  width: 200px;
+  margin: 0 auto;
+}
+
+.authorized-signature-header {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.signature-role {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.signature-image {
+  max-height: 50px;
+  max-width: 200px;
+  object-fit: contain;
+}
+
+.signature-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.signature-title {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.signature-date {
+  font-size: 13px;
+  color: #555;
+  margin-top: 8px;
+}
+
+/* Print styles */
+@media print {
+  .signature-container {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  
+  .signature-script {
+    transform: rotate(-1deg);
+  }
+}
+
+/* Font fallbacks for different systems */
+@font-face {
+  font-family: 'Signature Script';
+  src: local('Brush Script MT'),
+       local('Lucida Handwriting'),
+       local('Apple Chancery'),
+       local('Zapfino'),
+       local('Marker Felt'),
+       local('Bradley Hand ITC');
+  font-style: italic;
+  font-display: swap;
+}

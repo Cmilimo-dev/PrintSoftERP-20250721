@@ -1,0 +1,19 @@
+{
+  "name": "printsofterp",
+  "version": "1.0.0",
+  "description": "A modern Enterprise Resource Planning system built with React and Node.js.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "./scripts/start-complete.sh",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "start": "./scripts/start-complete.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

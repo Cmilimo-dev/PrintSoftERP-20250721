@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signature Data Refresh Tool</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            margin-bottom: 30px;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 10px 10px 0;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        .success {
+            background: #10b981;
+        }
+        .success:hover {
+            background: #059669;
+        }
+        .output {
+            background: #f8f9fa;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .department {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .signature {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Signature Data Refresh Tool</h1>
+        <p>This tool will refresh the authorized signature data to include the new Purchasing department signatures.</p>
+        
+        <button onclick="refreshSignatureData()">🔄 Refresh Signatures</button>
+        <button onclick="viewCurrentSignatures()" class="success">👀 View Current Signatures</button>
+        <button onclick="clearAllStorage()" style="background: #dc2626;">🗑️ Clear All Storage</button>
+        
+        <div id="output" class="output"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            output.textContent += `[${timestamp}] ${icon} ${message}\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function refreshSignatureData() {
+            try {
+                log('Starting signature data refresh...');
+                
+                // Get current settings or create new ones
+                let settings = {};
+                try {
+                    const existing = localStorage.getItem('system_settings');
+                    if (existing) {
+                        settings = JSON.parse(existing);
+                        log('Found existing settings, updating signatures...');
+                    } else {
+                        log('No existing settings found, creating new ones...');
+                    }
+                } catch (e) {
+                    log('Error reading existing settings, creating fresh ones...', 'error');
+                }
+
+                // Define the complete signature list including Purchasing department
+                const authorizedSignatures = [
+                    {
+                        id: 'sig_001',
+                        name: 'Helen Achieng',
+                        title: 'Sales Representative',
+                        department: 'Sales',
+                        signatureText: 'H. A',
+                        isDefault: true,
+                        createdAt: '2025-01-01T00:00:00.000Z',
+                        updatedAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'sig_002',
+                        name: 'Sarah Wilson',
+                        title: 'Finance Director',
+                        department: 'Finance',
+                        signatureText: 'S. Wilson',
+                        isDefault: false,
+                        createdAt: '2025-01-01T00:00:00.000Z',
+                        updatedAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'sig_003',
+                        name: 'Michael Brown',
+                        title: 'Operations Manager',
+                        department: 'Operations',
+                        signatureText: 'M. Brown',
+                        isDefault: false,
+                        createdAt: '2025-01-01T00:00:00.000Z',
+                        updatedAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'sig_004',
+                        name: 'Emily Davis',
+                        title: 'CEO',
+                        department: 'Executive',
+                        signatureText: 'Emily Davis',
+                        isDefault: false,
+                        createdAt: '2025-01-01T00:00:00.000Z',
+                        updatedAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'sig_005',
+                        name: 'Robert Johnson',
+                        title: 'Quality Assurance Manager',
+                        department: 'Quality',
+                        signatureText: 'R. Johnson',
+                        isDefault: false,
+                        createdAt: '2025-01-01T00:00:00.000Z',
+                        updatedAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'sig_006',
+                        name: 'David Martinez',
+                        title: 'Purchasing Manager',
+                        department: 'Purchasing',
+                        signatureText: 'D. Martinez',
+                        isDefault: false,
+                        createdAt: '2025-01-01T00:00:00.000Z',
+                        updatedAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'sig_007',
+                        name: 'Lisa Chen',
+                        title: 'Procurement Officer',
+                        department: 'Purchasing',
+                        signatureText: 'L. Chen',
+                        isDefault: false,
+                        createdAt: '2025-01-01T00:00:00.000Z',
+                        updatedAt: new Date().toISOString()
+                    }
+                ];
+
+                // Update the settings with new signatures
+                settings.authorizedSignatures = authorizedSignatures;
+                
+                // Save to localStorage
+                localStorage.setItem('system_settings', JSON.stringify(settings));
+                
+                log('✅ Signature data successfully refreshed!', 'success');
+                log(`📊 Total signatures: ${authorizedSignatures.length}`, 'success');
+                log('🏢 Departments: Sales, Finance, Operations, Executive, Quality, Purchasing', 'success');
+                
+                // Dispatch event to notify all components to reload
+                window.dispatchEvent(new CustomEvent('signature-data-updated', {
+                    detail: { signatures: authorizedSignatures }
+                }));
+                
+                log('📡 Signature update event dispatched to all components', 'success');
+                
+            } catch (error) {
+                log(`❌ Error refreshing signature data: ${error.message}`, 'error');
+            }
+        }
+
+        function viewCurrentSignatures() {
+            try {
+                const settings = localStorage.getItem('system_settings');
+                if (!settings) {
+                    log('No system settings found in localStorage', 'error');
+                    return;
+                }
+
+                const parsed = JSON.parse(settings);
+                const signatures = parsed.authorizedSignatures || [];
+                
+                log('📋 Current Authorized Signatures:', 'success');
+                log(`Total: ${signatures.length} signatures\n`);
+                
+                // Group by department
+                const byDepartment = {};
+                signatures.forEach(sig => {
+                    if (!byDepartment[sig.department]) {
+                        byDepartment[sig.department] = [];
+                    }
+                    byDepartment[sig.department].push(sig);
+                });
+
+                Object.keys(byDepartment).sort().forEach(dept => {
+                    log(`🏢 ${dept.toUpperCase()} DEPARTMENT:`);
+                    byDepartment[dept].forEach(sig => {
+                        log(`  👤 ${sig.name} - ${sig.title}`);
+                        log(`     Signature: "${sig.signatureText}" ${sig.isDefault ? '(DEFAULT)' : ''}`);
+                        log(`     ID: ${sig.id}\n`);
+                    });
+                });
+                
+            } catch (error) {
+                log(`❌ Error viewing signatures: ${error.message}`, 'error');
+            }
+        }
+
+        function clearAllStorage() {
+            try {
+                if (confirm('⚠️ This will clear ALL localStorage data. Are you sure?')) {
+                    localStorage.clear();
+                    log('🗑️ All localStorage data cleared', 'success');
+                    log('Please refresh the page and run signature refresh again');
+                }
+            } catch (error) {
+                log(`❌ Error clearing storage: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-show current signatures on load
+        window.addEventListener('load', () => {
+            log('🚀 Signature Refresh Tool loaded');
+            log('Click "Refresh Signatures" to update with Purchasing department signatures');
+        });
+    </script>
+</body>
+</html>

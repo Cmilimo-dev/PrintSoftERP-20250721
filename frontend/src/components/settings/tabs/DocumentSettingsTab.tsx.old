@@ -1,0 +1,124 @@
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FileText } from 'lucide-react';
+import { DocumentDefaults } from '@/modules/system-settings/types/systemSettingsTypes';
+
+interface DocumentSettingsTabProps {
+  documentDefaults: DocumentDefaults;
+  onUpdate: (updates: Partial<DocumentDefaults>) => void;
+}
+
+const DocumentSettingsTab: React.FC<DocumentSettingsTabProps> = ({ 
+  documentDefaults, 
+  onUpdate 
+}) => {
+  const generatePreview = (prefix: string, nextNumber: number, format: string) => {
+    const year = new Date().getFullYear();
+    const number = nextNumber.toString().padStart(4, '0');
+    return format
+      .replace('{prefix}', prefix)
+      .replace('{year}', year.toString())
+      .replace('{number:0000}', number)
+      .replace('{number}', number);
+  };
+
+  const formatDocumentTypeName = (docType: string) => {
+    return docType.replace(/([A-Z])/g, ' $1').trim();
+  };
+
+  const handleDocumentUpdate = (docType: string, config: any, updates: any) => {
+    onUpdate({
+      [docType]: { ...config, ...updates }
+    });
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="h-5 w-5" />
+          Document Default Settings
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {Object.entries(documentDefaults).map(([docType, config]) => (
+          <Card key={docType} className="p-4">
+            <h3 className="font-semibold mb-4 capitalize">
+              {formatDocumentTypeName(docType)}
+            </h3>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Prefix</Label>
+                <Input
+                  value={config.prefix}
+                  onChange={(e) => handleDocumentUpdate(docType, config, {
+                    prefix: e.target.value
+                  })}
+                />
+              </div>
+              
+              <div>
+                <Label>Next Number</Label>
+                <Input
+                  type="number"
+                  value={config.nextNumber}
+                  onChange={(e) => handleDocumentUpdate(docType, config, {
+                    nextNumber: parseInt(e.target.value) || 1
+                  })}
+                />
+              </div>
+              
+              <div>
+                <Label>Number Format</Label>
+                <Input
+                  value={config.numberFormat}
+                  onChange={(e) => handleDocumentUpdate(docType, config, {
+                    numberFormat: e.target.value
+                  })}
+                  placeholder="{prefix}-{year}-{number:0000}"
+                />
+              </div>
+              
+              <div>
+                <Label>Reset Frequency</Label>
+                <Select
+                  value={config.resetFrequency}
+                  onValueChange={(value: 'never' | 'yearly' | 'monthly') => 
+                    handleDocumentUpdate(docType, config, {
+                      resetFrequency: value
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="never">Never</SelectItem>
+                    <SelectItem value="yearly">Yearly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            {/* Preview */}
+            <div className="mt-4">
+              <div className="p-2 bg-muted rounded">
+                <span className="text-sm font-medium">Preview: </span>
+                <span className="text-sm">
+                  {generatePreview(config.prefix, config.nextNumber, config.numberFormat)}
+                </span>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default DocumentSettingsTab;
