@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt Signature Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .test-result {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        .button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 14px;
+        }
+        .button:hover {
+            background: #1d4ed8;
+        }
+        pre {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .document-preview {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: white;
+            font-family: 'Trebuchet MS', Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .signature-section {
+            margin: 40px 0 20px 0;
+            page-break-inside: avoid;
+        }
+        .signature-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .signature-box {
+            text-align: center;
+            min-width: 200px;
+        }
+        .signature-image {
+            border-bottom: 2px solid #333;
+            margin-bottom: 8px;
+            height: 50px;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+        }
+        .signature-details {
+            font-size: 10px;
+            color: #4a5568;
+        }
+        .date-box {
+            text-align: center;
+            min-width: 150px;
+        }
+        .date-line {
+            border-bottom: 2px solid #333;
+            margin-bottom: 8px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Payment Receipt Signature Test</h1>
+        <p>This page tests the signature functionality for payment receipts in the PrintSoft ERP system.</p>
+        
+        <div id="results"></div>
+        
+        <div class="test-section">
+            <h3>Test Actions</h3>
+            <button class="button" onclick="testSignatureSystem()">Test Signature System</button>
+            <button class="button" onclick="createTestPaymentReceipt()">Create Test Payment Receipt</button>
+            <button class="button" onclick="testSignatureGeneration()">Test Signature Generation</button>
+            <button class="button" onclick="validateSignatureData()">Validate Signature Data</button>
+        </div>
+        
+        <div id="testOutput"></div>
+        
+        <div id="documentPreview"></div>
+    </div>
+
+    <script>
+        function showResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<div class="test-result ${type}">${message}</div>`;
+        }
+
+        function showOutput(content) {
+            const outputDiv = document.getElementById('testOutput');
+            outputDiv.innerHTML = `<div class="test-section"><h3>Test Output</h3><pre>${content}</pre></div>`;
+        }
+
+        function testSignatureSystem() {
+            showResult('Testing signature system...', 'info');
+            
+            try {
+                // Test localStorage for signature data
+                const signatures = JSON.parse(localStorage.getItem('authorizedSignatures') || '[]');
+                showResult(`Found ${signatures.length} signatures in storage`, 'success');
+                
+                // Test department mappings
+                const mappings = JSON.parse(localStorage.getItem('departmentMappings') || '{}');
+                showResult(`Department mappings loaded: ${Object.keys(mappings).join(', ')}`, 'success');
+                
+                // Test payment receipt mapping
+                const paymentReceiptDept = mappings['payment_receipt'];
+                if (paymentReceiptDept) {
+                    showResult(`Payment receipts mapped to: ${paymentReceiptDept} Department`, 'success');
+                    
+                    // Find signatures for finance department
+                    const financeSignatures = signatures.filter(sig => sig.department === paymentReceiptDept);
+                    showResult(`Found ${financeSignatures.length} signatures for ${paymentReceiptDept} department`, 'success');
+                    
+                    if (financeSignatures.length > 0) {
+                        const firstSignature = financeSignatures[0];
+                        showOutput(JSON.stringify(firstSignature, null, 2));
+                        showResult(`Test signature: ${firstSignature.name} (${firstSignature.title})`, 'success');
+                    }
+                } else {
+                    showResult('Payment receipt department mapping not found', 'error');
+                }
+                
+            } catch (error) {
+                showResult(`Error testing signature system: ${error.message}`, 'error');
+            }
+        }
+
+        function createTestPaymentReceipt() {
+            showResult('Creating test payment receipt...', 'info');
+            
+            try {
+                // Create a test payment receipt document
+                const testReceipt = {
+                    id: 'test-pr-001',
+                    documentNumber: 'PR-2024-001',
+                    date: new Date().toISOString(),
+                    currency: 'KES',
+                    total: 15000,
+                    company: {
+                        name: 'PrintSoft ERP Solutions',
+                        address: '123 Business Ave',
+                        city: 'Nairobi',
+                        phone: '+254 700 123 456',
+                        email: 'info@printsoft.co.ke'
+                    },
+                    receiptType: 'customer',
+                    paymentMethod: 'M-Pesa',
+                    reference: 'RFQ12345678',
+                    amountPaid: 15000,
+                    invoiceTotal: 15000,
+                    customer: {
+                        name: 'Acme Corporation',
+                        address: '456 Client Street',
+                        city: 'Nairobi',
+                        state: 'Nairobi',
+                        zip: '00100'
+                    },
+                    relatedInvoice: 'INV-2024-001',
+                    signature: {
+                        enabled: true,
+                        signatureId: 'finance-1', // Sarah Wilson from Finance
+                        documentType: 'payment_receipt'
+                    }
+                };
+                
+                // Store test receipt
+                localStorage.setItem('testPaymentReceipt', JSON.stringify(testReceipt));
+                showResult('Test payment receipt created and stored', 'success');
+                showOutput(JSON.stringify(testReceipt, null, 2));
+                
+                // Generate preview
+                generateDocumentPreview(testReceipt);
+                
+            } catch (error) {
+                showResult(`Error creating test receipt: ${error.message}`, 'error');
+            }
+        }
+
+        function testSignatureGeneration() {
+            showResult('Testing signature generation...', 'info');
+            
+            try {
+                const testReceipt = JSON.parse(localStorage.getItem('testPaymentReceipt') || '{}');
+                const signatures = JSON.parse(localStorage.getItem('authorizedSignatures') || '[]');
+                
+                if (!testReceipt.signature) {
+                    showResult('No test receipt found. Create one first.', 'error');
+                    return;
+                }
+                
+                const signatureId = testReceipt.signature.signatureId;
+                const signature = signatures.find(sig => sig.id === signatureId);
+                
+                if (signature) {
+                    showResult(`Found signature: ${signature.name} (${signature.title})`, 'success');
+                    
+                    // Generate signature HTML
+                    const signatureHtml = generateSignatureHtml(signature);
+                    showOutput(signatureHtml);
+                    
+                    showResult('Signature HTML generated successfully', 'success');
+                } else {
+                    showResult(`Signature with ID ${signatureId} not found`, 'error');
+                }
+                
+            } catch (error) {
+                showResult(`Error generating signature: ${error.message}`, 'error');
+            }
+        }
+
+        function generateSignatureHtml(signature) {
+            return `
+<div class="signature-section">
+    <div style="display: flex; justify-content: space-between; align-items: end; max-width: 600px; margin: 0 auto;">
+        <div style="text-align: center; min-width: 200px;">
+            <div style="border-bottom: 2px solid #333; margin-bottom: 8px; height: 50px; display: flex; align-items: end; justify-content: center;">
+                ${signature.imageUrl ? `<img src="${signature.imageUrl}" alt="Signature" style="max-height: 45px; max-width: 180px;" />` : ''}
+            </div>
+            <div style="font-size: 10px; color: #4a5568;">
+                <div style="font-weight: bold; margin-bottom: 2px;">${signature.name}</div>
+                <div>${signature.title}</div>
+                <div>${signature.department} Department</div>
+            </div>
+        </div>
+        <div style="text-align: center; min-width: 150px;">
+            <div style="border-bottom: 2px solid #333; margin-bottom: 8px; height: 20px;"></div>
+            <div style="font-size: 10px; color: #4a5568;">Date</div>
+        </div>
+    </div>
+</div>
+            `.trim();
+        }
+
+        function generateDocumentPreview(receipt) {
+            const signatures = JSON.parse(localStorage.getItem('authorizedSignatures') || '[]');
+            const signature = signatures.find(sig => sig.id === receipt.signature?.signatureId);
+            
+            const previewHtml = `
+                <div class="document-preview">
+                    <h2 style="color: #2b6cb0; text-align: center; margin-bottom: 20px;">PAYMENT RECEIPT</h2>
+                    <h3 style="text-align: center; margin-bottom: 20px;">${receipt.documentNumber}</h3>
+                    
+                    <div style="background: #dcfce7; border: 1px solid #16a34a; padding: 15px; margin: 20px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: bold; margin-bottom: 8px;">Payment Received</div>
+                                <div><strong>Amount:</strong> KSh ${receipt.amountPaid.toLocaleString()}</div>
+                                <div><strong>Method:</strong> ${receipt.paymentMethod}</div>
+                                <div><strong>Reference:</strong> ${receipt.reference}</div>
+                            </div>
+                            <div style="border: 2px solid #16a34a; color: #16a34a; padding: 10px 20px; font-weight: bold;">
+                                PAID IN FULL
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        <div style="font-weight: bold; margin-bottom: 10px;">Received From:</div>
+                        <div style="margin-left: 20px;">
+                            <div style="font-weight: bold;">${receipt.customer.name}</div>
+                            <div>${receipt.customer.address}</div>
+                            <div>${receipt.customer.city}, ${receipt.customer.state} ${receipt.customer.zip}</div>
+                        </div>
+                    </div>
+                    
+                    ${receipt.signature?.enabled && signature ? `
+                        <div class="signature-section">
+                            <div class="signature-line">
+                                <div class="signature-box">
+                                    <div class="signature-image">
+                                        ${signature.imageUrl ? `<img src="${signature.imageUrl}" alt="Signature" style="max-height: 45px; max-width: 180px;" />` : ''}
+                                    </div>
+                                    <div class="signature-details">
+                                        <div style="font-weight: bold; margin-bottom: 2px;">${signature.name}</div>
+                                        <div>${signature.title}</div>
+                                        <div>${signature.department} Department</div>
+                                    </div>
+                                </div>
+                                <div class="date-box">
+                                    <div class="date-line"></div>
+                                    <div class="signature-details">Date</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            document.getElementById('documentPreview').innerHTML = `
+                <div class="test-section">
+                    <h3>Document Preview</h3>
+                    ${previewHtml}
+                </div>
+            `;
+        }
+
+        function validateSignatureData() {
+            showResult('Validating signature data...', 'info');
+            
+            try {
+                const signatures = JSON.parse(localStorage.getItem('authorizedSignatures') || '[]');
+                const mappings = JSON.parse(localStorage.getItem('departmentMappings') || '{}');
+                
+                // Check required fields
+                let validationErrors = [];
+                
+                signatures.forEach((sig, index) => {
+                    if (!sig.id) validationErrors.push(`Signature ${index + 1}: Missing ID`);
+                    if (!sig.name) validationErrors.push(`Signature ${index + 1}: Missing name`);
+                    if (!sig.title) validationErrors.push(`Signature ${index + 1}: Missing title`);
+                    if (!sig.department) validationErrors.push(`Signature ${index + 1}: Missing department`);
+                    if (!sig.email) validationErrors.push(`Signature ${index + 1}: Missing email`);
+                });
+                
+                // Check payment receipt mapping
+                if (!mappings['payment_receipt']) {
+                    validationErrors.push('Payment receipt department mapping missing');
+                }
+                
+                if (validationErrors.length === 0) {
+                    showResult(`All ${signatures.length} signatures are valid!`, 'success');
+                    showResult('Payment receipt mapping is correct', 'success');
+                } else {
+                    showResult(`Validation failed: ${validationErrors.join(', ')}`, 'error');
+                }
+                
+            } catch (error) {
+                showResult(`Error validating data: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run basic test on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            testSignatureSystem();
+        });
+    </script>
+</body>
+</html>

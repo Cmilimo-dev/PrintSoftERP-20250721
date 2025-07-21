@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <exclude domain="sharedpref" path="sensitive_prefs.xml" />
+    <exclude domain="database" path="erp_database.db" />
+    <exclude domain="database" path="mobile_erp_database.db" />
+</full-backup-content>

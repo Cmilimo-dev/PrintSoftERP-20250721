@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Primary Brand Colors -->
+    <color name="primary">#FF2196F3</color>
+    <color name="primary_dark">#FF1976D2</color>
+    <color name="primary_light">#FFE3F2FD</color>
+    
+    <!-- Secondary Colors -->
+    <color name="secondary">#FFFF9800</color>
+    <color name="secondary_dark">#FFF57C00</color>
+    <color name="secondary_light">#FFFEF7E0</color>
+    
+    <!-- Accent Colors -->
+    <color name="accent">#FF4CAF50</color>
+    <color name="accent_dark">#FF388E3C</color>
+    
+    <!-- Status Colors -->
+    <color name="success">#FF4CAF50</color>
+    <color name="warning">#FFFF9800</color>
+    <color name="error">#FFF44336</color>
+    <color name="info">#FF2196F3</color>
+    
+    <!-- Background Colors -->
+    <color name="background">#FFFAFAFA</color>
+    <color name="surface">#FFFFFFFF</color>
+    <color name="surface_variant">#FFF5F5F5</color>
+    
+    <!-- Text Colors -->
+    <color name="on_primary">#FFFFFFFF</color>
+    <color name="on_secondary">#FF000000</color>
+    <color name="on_background">#FF000000</color>
+    <color name="on_surface">#FF000000</color>
+    <color name="on_surface_variant">#FF616161</color>
+    
+    <!-- Launcher Icon Colors -->
+    <color name="ic_launcher_background">#FF2196F3</color>
+</resources>

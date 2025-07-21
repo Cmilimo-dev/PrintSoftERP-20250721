@@ -1,0 +1,459 @@
+package com.printsoft.erp.data.repository
+
+import com.printsoft.erp.data.local.dao.SalesDao
+import com.printsoft.erp.data.local.database.dao.*
+import com.printsoft.erp.data.model.*
+import com.printsoft.erp.data.api.ApiService
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class SalesRepository @Inject constructor(
+    private val apiService: ApiService,
+    private val salesOrderDao: SalesOrderDao,
+    // private val salesOrderItemDao: SalesOrderItemDao, // TODO: Create this DAO
+    private val quotationDao: QuotationDao,
+    // private val quotationItemDao: QuotationItemDao, // TODO: Create this DAO
+    private val invoiceDao: InvoiceDao,
+    // private val invoiceItemDao: InvoiceItemDao, // TODO: Create this DAO
+    // private val deliveryNoteDao: DeliveryNoteDao, // TODO: Create this DAO
+    // private val deliveryNoteItemDao: DeliveryNoteItemDao // TODO: Create this DAO
+) {
+    // Sales Orders
+    fun getAllSalesOrders(): Flow<List<SalesOrder>> = salesOrderDao.getAllSalesOrders()
+
+    suspend fun getSalesOrderById(id: String): SalesOrder? {
+        return try {
+            // Try API first
+            val apiResponse = apiService.getSalesOrderById(id)
+            apiResponse?.let { salesOrderDao.insertSalesOrder(it) }
+            apiResponse
+        } catch (e: Exception) {
+            // Fallback to local database
+            salesOrderDao.getSalesOrderById(id)
+        }
+    }
+
+    suspend fun createSalesOrder(salesOrder: SalesOrder): Result<SalesOrder> {
+        return try {
+            // Try API first
+            val createdOrder = apiService.createSalesOrder(salesOrder)
+            salesOrderDao.insertSalesOrder(createdOrder)
+            Result.success(createdOrder)
+        } catch (e: Exception) {
+            // Save locally and mark for sync
+            salesOrderDao.insertSalesOrder(salesOrder)
+            Result.success(salesOrder)
+        }
+    }
+
+    suspend fun updateSalesOrder(salesOrder: SalesOrder): Result<SalesOrder> {
+        return try {
+            val updatedOrder = apiService.updateSalesOrder(salesOrder.id, salesOrder)
+            salesOrderDao.updateSalesOrder(updatedOrder)
+            Result.success(updatedOrder)
+        } catch (e: Exception) {
+            salesOrderDao.updateSalesOrder(salesOrder)
+            Result.success(salesOrder)
+        }
+    }
+
+    suspend fun deleteSalesOrder(id: String): Result<Unit> {
+        return try {
+            apiService.deleteSalesOrder(id)
+            salesOrderDao.deleteSalesOrderById(id)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            salesOrderDao.deleteSalesOrderById(id)
+            Result.success(Unit)
+        }
+    }
+
+    suspend fun getSalesOrdersByCustomer(customerId: String): List<SalesOrder> {
+        return try {
+            val apiOrders = apiService.getSalesOrdersByCustomer(customerId)
+            salesOrderDao.insertSalesOrders(apiOrders)
+            apiOrders
+        } catch (e: Exception) {
+            salesOrderDao.getSalesOrdersByCustomer(customerId)
+        }
+    }
+
+    suspend fun getSalesOrdersByStatus(status: String): List<SalesOrder> {
+        return try {
+            val apiOrders = apiService.getSalesOrdersByStatus(status)
+            salesOrderDao.insertSalesOrders(apiOrders)
+            apiOrders
+        } catch (e: Exception) {
+            salesOrderDao.getSalesOrdersByStatus(status)
+        }
+    }
+
+    suspend fun searchSalesOrders(query: String): List<SalesOrder> {
+        return try {
+            val apiOrders = apiService.searchSalesOrders(query)
+            salesOrderDao.insertSalesOrders(apiOrders)
+            apiOrders
+        } catch (e: Exception) {
+            salesOrderDao.searchSalesOrders(query)
+        }
+    }
+
+    suspend fun convertQuotationToSalesOrder(quotationId: String): Result<SalesOrder> {
+        return try {
+            val salesOrder = apiService.convertQuotationToSalesOrder(quotationId)
+            salesOrderDao.insertSalesOrder(salesOrder)
+            Result.success(salesOrder)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // Sales Order Items
+    suspend fun getSalesOrderItems(salesOrderId: String): List<SalesOrderItem> {
+        return try {
+            val apiItems = apiService.getSalesOrderItems(salesOrderId)
+            // salesOrderItemDao.insertSalesOrderItems(apiItems) // TODO: Uncomment when DAO is created
+            apiItems
+        } catch (e: Exception) {
+            // salesOrderItemDao.getItemsBySalesOrderId(salesOrderId) // TODO: Uncomment when DAO is created
+            emptyList()
+        }
+    }
+
+    // Quotations
+    fun getAllQuotations(): Flow<List<Quotation>> = quotationDao.getAllQuotations()
+
+    suspend fun getQuotationById(id: String): Quotation? {
+        return try {
+            val apiResponse = apiService.getQuotationById(id)
+            apiResponse?.let { quotationDao.insertQuotation(it) }
+            apiResponse
+        } catch (e: Exception) {
+            quotationDao.getQuotationById(id)
+        }
+    }
+
+    suspend fun createQuotation(quotation: Quotation): Result<Quotation> {
+        return try {
+            val createdQuotation = apiService.createQuotation(quotation)
+            quotationDao.insertQuotation(createdQuotation)
+            Result.success(createdQuotation)
+        } catch (e: Exception) {
+            quotationDao.insertQuotation(quotation)
+            Result.success(quotation)
+        }
+    }
+
+    suspend fun updateQuotation(quotation: Quotation): Result<Quotation> {
+        return try {
+            val updatedQuotation = apiService.updateQuotation(quotation.id, quotation)
+            quotationDao.updateQuotation(updatedQuotation)
+            Result.success(updatedQuotation)
+        } catch (e: Exception) {
+            quotationDao.updateQuotation(quotation)
+            Result.success(quotation)
+        }
+    }
+
+    suspend fun deleteQuotation(id: String): Result<Unit> {
+        return try {
+            apiService.deleteQuotation(id)
+            quotationDao.deleteQuotationById(id)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            quotationDao.deleteQuotationById(id)
+            Result.success(Unit)
+        }
+    }
+
+    suspend fun getQuotationsByCustomer(customerId: String): List<Quotation> {
+        return try {
+            val apiQuotations = apiService.getQuotationsByCustomer(customerId)
+            quotationDao.insertQuotations(apiQuotations)
+            apiQuotations
+        } catch (e: Exception) {
+            quotationDao.getQuotationsByCustomer(customerId)
+        }
+    }
+
+    suspend fun searchQuotations(query: String): List<Quotation> {
+        return try {
+            val apiQuotations = apiService.searchQuotations(query)
+            quotationDao.insertQuotations(apiQuotations)
+            apiQuotations
+        } catch (e: Exception) {
+            quotationDao.searchQuotations(query)
+        }
+    }
+
+    // Quotation Items
+    suspend fun getQuotationItems(quotationId: String): List<QuotationItem> {
+        return try {
+            val apiItems = apiService.getQuotationItems(quotationId)
+            // quotationItemDao.insertQuotationItems(apiItems) // TODO: Uncomment when DAO is created
+            apiItems
+        } catch (e: Exception) {
+            // quotationItemDao.getItemsByQuotationId(quotationId) // TODO: Uncomment when DAO is created
+            emptyList()
+        }
+    }
+
+    // Invoices
+    fun getAllInvoices(): Flow<List<Invoice>> = invoiceDao.getAllInvoices()
+
+    suspend fun getInvoiceById(id: String): Invoice? {
+        return try {
+            val apiResponse = apiService.getInvoiceById(id)
+            apiResponse?.let { invoiceDao.insertInvoice(it) }
+            apiResponse
+        } catch (e: Exception) {
+            invoiceDao.getInvoiceById(id)
+        }
+    }
+
+    suspend fun createInvoice(invoice: Invoice): Result<Invoice> {
+        return try {
+            val createdInvoice = apiService.createInvoice(invoice)
+            invoiceDao.insertInvoice(createdInvoice)
+            Result.success(createdInvoice)
+        } catch (e: Exception) {
+            invoiceDao.insertInvoice(invoice)
+            Result.success(invoice)
+        }
+    }
+
+    suspend fun updateInvoice(invoice: Invoice): Result<Invoice> {
+        return try {
+            val updatedInvoice = apiService.updateInvoice(invoice.id, invoice)
+            invoiceDao.updateInvoice(updatedInvoice)
+            Result.success(updatedInvoice)
+        } catch (e: Exception) {
+            invoiceDao.updateInvoice(invoice)
+            Result.success(invoice)
+        }
+    }
+
+    suspend fun deleteInvoice(id: String): Result<Unit> {
+        return try {
+            apiService.deleteInvoice(id)
+            invoiceDao.deleteInvoiceById(id)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            invoiceDao.deleteInvoiceById(id)
+            Result.success(Unit)
+        }
+    }
+
+    suspend fun getInvoicesByCustomer(customerId: String): List<Invoice> {
+        return try {
+            val apiInvoices = apiService.getInvoicesByCustomer(customerId)
+            invoiceDao.insertInvoices(apiInvoices)
+            apiInvoices
+        } catch (e: Exception) {
+            invoiceDao.getInvoicesByCustomer(customerId)
+        }
+    }
+
+    suspend fun getInvoicesByStatus(status: String): List<Invoice> {
+        return try {
+            val apiInvoices = apiService.getInvoicesByStatus(status)
+            invoiceDao.insertInvoices(apiInvoices)
+            apiInvoices
+        } catch (e: Exception) {
+            invoiceDao.getInvoicesByStatus(status)
+        }
+    }
+
+    suspend fun searchInvoices(query: String): List<Invoice> {
+        return try {
+            val apiInvoices = apiService.searchInvoices(query)
+            invoiceDao.insertInvoices(apiInvoices)
+            apiInvoices
+        } catch (e: Exception) {
+            invoiceDao.searchInvoices(query)
+        }
+    }
+
+    suspend fun convertSalesOrderToInvoice(salesOrderId: String): Result<Invoice> {
+        return try {
+            val invoice = apiService.convertSalesOrderToInvoice(salesOrderId)
+            invoiceDao.insertInvoice(invoice)
+            Result.success(invoice)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // Invoice Items
+    suspend fun getInvoiceItems(invoiceId: String): List<InvoiceItem> {
+        return try {
+            val apiItems = apiService.getInvoiceItems(invoiceId)
+            invoiceItemDao.insertInvoiceItems(apiItems)
+            apiItems
+        } catch (e: Exception) {
+            invoiceItemDao.getItemsByInvoiceId(invoiceId)
+        }
+    }
+
+    // Delivery Notes
+    fun getAllDeliveryNotes(): Flow<List<DeliveryNote>> = deliveryNoteDao.getAllDeliveryNotes()
+
+    suspend fun getDeliveryNoteById(id: String): DeliveryNote? {
+        return try {
+            val apiResponse = apiService.getDeliveryNoteById(id)
+            apiResponse?.let { deliveryNoteDao.insertDeliveryNote(it) }
+            apiResponse
+        } catch (e: Exception) {
+            deliveryNoteDao.getDeliveryNoteById(id)
+        }
+    }
+
+    suspend fun createDeliveryNote(deliveryNote: DeliveryNote): Result<DeliveryNote> {
+        return try {
+            val createdNote = apiService.createDeliveryNote(deliveryNote)
+            deliveryNoteDao.insertDeliveryNote(createdNote)
+            Result.success(createdNote)
+        } catch (e: Exception) {
+            deliveryNoteDao.insertDeliveryNote(deliveryNote)
+            Result.success(deliveryNote)
+        }
+    }
+
+    suspend fun updateDeliveryNote(deliveryNote: DeliveryNote): Result<DeliveryNote> {
+        return try {
+            val updatedNote = apiService.updateDeliveryNote(deliveryNote.id, deliveryNote)
+            deliveryNoteDao.updateDeliveryNote(updatedNote)
+            Result.success(updatedNote)
+        } catch (e: Exception) {
+            deliveryNoteDao.updateDeliveryNote(deliveryNote)
+            Result.success(deliveryNote)
+        }
+    }
+
+    suspend fun deleteDeliveryNote(id: String): Result<Unit> {
+        return try {
+            apiService.deleteDeliveryNote(id)
+            deliveryNoteDao.deleteDeliveryNoteById(id)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            deliveryNoteDao.deleteDeliveryNoteById(id)
+            Result.success(Unit)
+        }
+    }
+
+    suspend fun getDeliveryNotesByCustomer(customerId: String): List<DeliveryNote> {
+        return try {
+            val apiNotes = apiService.getDeliveryNotesByCustomer(customerId)
+            deliveryNoteDao.insertDeliveryNotes(apiNotes)
+            apiNotes
+        } catch (e: Exception) {
+            deliveryNoteDao.getDeliveryNotesByCustomer(customerId)
+        }
+    }
+
+    suspend fun getDeliveryNotesByStatus(status: String): List<DeliveryNote> {
+        return try {
+            val apiNotes = apiService.getDeliveryNotesByStatus(status)
+            deliveryNoteDao.insertDeliveryNotes(apiNotes)
+            apiNotes
+        } catch (e: Exception) {
+            deliveryNoteDao.getDeliveryNotesByStatus(status)
+        }
+    }
+
+    suspend fun searchDeliveryNotes(query: String): List<DeliveryNote> {
+        return try {
+            val apiNotes = apiService.searchDeliveryNotes(query)
+            deliveryNoteDao.insertDeliveryNotes(apiNotes)
+            apiNotes
+        } catch (e: Exception) {
+            deliveryNoteDao.searchDeliveryNotes(query)
+        }
+    }
+
+    suspend fun createDeliveryNoteFromSalesOrder(salesOrderId: String): Result<DeliveryNote> {
+        return try {
+            val deliveryNote = apiService.createDeliveryNoteFromSalesOrder(salesOrderId)
+            deliveryNoteDao.insertDeliveryNote(deliveryNote)
+            Result.success(deliveryNote)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // Delivery Note Items
+    suspend fun getDeliveryNoteItems(deliveryNoteId: String): List<DeliveryNoteItem> {
+        return try {
+            val apiItems = apiService.getDeliveryNoteItems(deliveryNoteId)
+            deliveryNoteItemDao.insertDeliveryNoteItems(apiItems)
+            apiItems
+        } catch (e: Exception) {
+            deliveryNoteItemDao.getItemsByDeliveryNoteId(deliveryNoteId)
+        }
+    }
+
+    // Sync methods
+    suspend fun syncSalesData(): Result<Unit> {
+        return try {
+            // Fetch all data from API and update local database
+            val salesOrders = apiService.getAllSalesOrders()
+            salesOrderDao.insertSalesOrders(salesOrders)
+
+            val quotations = apiService.getAllQuotations()
+            quotationDao.insertQuotations(quotations)
+
+            val invoices = apiService.getAllInvoices()
+            invoiceDao.insertInvoices(invoices)
+
+            val deliveryNotes = apiService.getAllDeliveryNotes()
+            deliveryNoteDao.insertDeliveryNotes(deliveryNotes)
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun refreshSalesOrders(): List<SalesOrder> {
+        return try {
+            val apiOrders = apiService.getAllSalesOrders()
+            salesOrderDao.insertSalesOrders(apiOrders)
+            apiOrders
+        } catch (e: Exception) {
+            salesOrderDao.getAllSalesOrders().first()
+        }
+    }
+
+    suspend fun refreshQuotations(): List<Quotation> {
+        return try {
+            val apiQuotations = apiService.getAllQuotations()
+            quotationDao.insertQuotations(apiQuotations)
+            apiQuotations
+        } catch (e: Exception) {
+            quotationDao.getAllQuotations().first()
+        }
+    }
+
+    suspend fun refreshInvoices(): List<Invoice> {
+        return try {
+            val apiInvoices = apiService.getAllInvoices()
+            invoiceDao.insertInvoices(apiInvoices)
+            apiInvoices
+        } catch (e: Exception) {
+            invoiceDao.getAllInvoices().first()
+        }
+    }
+
+    suspend fun refreshDeliveryNotes(): List<DeliveryNote> {
+        return try {
+            val apiNotes = apiService.getAllDeliveryNotes()
+            deliveryNoteDao.insertDeliveryNotes(apiNotes)
+            apiNotes
+        } catch (e: Exception) {
+            deliveryNoteDao.getAllDeliveryNotes().first()
+        }
+    }
+}

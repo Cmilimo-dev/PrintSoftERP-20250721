@@ -1,0 +1,430 @@
+package com.printsoft.erp.data.repository
+
+import com.printsoft.erp.data.local.dao.PurchaseDao
+import com.printsoft.erp.data.local.database.dao.*
+import com.printsoft.erp.data.model.*
+import com.printsoft.erp.data.api.ApiService
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class PurchaseRepository @Inject constructor(
+    private val apiService: ApiService,
+    private val vendorDao: VendorDao,
+    private val purchaseOrderDao: PurchaseOrderDao,
+    private val purchaseOrderItemDao: PurchaseOrderItemDao,
+    private val purchaseReceiptDao: PurchaseReceiptDao,
+    private val purchaseReceiptItemDao: PurchaseReceiptItemDao,
+    private val purchaseInvoiceDao: PurchaseInvoiceDao
+) {
+    
+    // Vendors
+    fun getAllVendors(): Flow<List<Vendor>> = vendorDao.getAllVendors()
+
+    suspend fun getVendorById(id: String): Vendor? {
+        return try {
+            val apiResponse = apiService.getVendorById(id)
+            apiResponse?.let { vendorDao.insertVendor(it) }
+            apiResponse
+        } catch (e: Exception) {
+            vendorDao.getVendorById(id)
+        }
+    }
+
+    suspend fun createVendor(vendor: Vendor): Result<Vendor> {
+        return try {
+            val createdVendor = apiService.createVendor(vendor)
+            vendorDao.insertVendor(createdVendor)
+            Result.success(createdVendor)
+        } catch (e: Exception) {
+            vendorDao.insertVendor(vendor)
+            Result.success(vendor)
+        }
+    }
+
+    suspend fun updateVendor(vendor: Vendor): Result<Vendor> {
+        return try {
+            val updatedVendor = apiService.updateVendor(vendor.id, vendor)
+            vendorDao.updateVendor(updatedVendor)
+            Result.success(updatedVendor)
+        } catch (e: Exception) {
+            vendorDao.updateVendor(vendor)
+            Result.success(vendor)
+        }
+    }
+
+    suspend fun deleteVendor(id: String): Result<Unit> {
+        return try {
+            apiService.deleteVendor(id)
+            vendorDao.deleteVendorById(id)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            vendorDao.deleteVendorById(id)
+            Result.success(Unit)
+        }
+    }
+
+    suspend fun searchVendors(query: String): List<Vendor> {
+        return try {
+            val apiVendors = apiService.searchVendors(query)
+            vendorDao.insertVendors(apiVendors)
+            apiVendors
+        } catch (e: Exception) {
+            vendorDao.searchVendors(query)
+        }
+    }
+
+    suspend fun getVendorsByStatus(status: String): List<Vendor> {
+        return try {
+            val apiVendors = apiService.getVendorsByStatus(status)
+            vendorDao.insertVendors(apiVendors)
+            apiVendors
+        } catch (e: Exception) {
+            vendorDao.getVendorsByStatus(status)
+        }
+    }
+
+    // Purchase Orders
+    fun getAllPurchaseOrders(): Flow<List<PurchaseOrder>> = purchaseOrderDao.getAllPurchaseOrders()
+
+    suspend fun getPurchaseOrderById(id: String): PurchaseOrder? {
+        return try {
+            val apiResponse = apiService.getPurchaseOrderById(id)
+            apiResponse?.let { purchaseOrderDao.insertPurchaseOrder(it) }
+            apiResponse
+        } catch (e: Exception) {
+            purchaseOrderDao.getPurchaseOrderById(id)
+        }
+    }
+
+    suspend fun createPurchaseOrder(purchaseOrder: PurchaseOrder): Result<PurchaseOrder> {
+        return try {
+            val createdPO = apiService.createPurchaseOrder(purchaseOrder)
+            purchaseOrderDao.insertPurchaseOrder(createdPO)
+            Result.success(createdPO)
+        } catch (e: Exception) {
+            purchaseOrderDao.insertPurchaseOrder(purchaseOrder)
+            Result.success(purchaseOrder)
+        }
+    }
+
+    suspend fun updatePurchaseOrder(purchaseOrder: PurchaseOrder): Result<PurchaseOrder> {
+        return try {
+            val updatedPO = apiService.updatePurchaseOrder(purchaseOrder.id, purchaseOrder)
+            purchaseOrderDao.updatePurchaseOrder(updatedPO)
+            Result.success(updatedPO)
+        } catch (e: Exception) {
+            purchaseOrderDao.updatePurchaseOrder(purchaseOrder)
+            Result.success(purchaseOrder)
+        }
+    }
+
+    suspend fun deletePurchaseOrder(id: String): Result<Unit> {
+        return try {
+            apiService.deletePurchaseOrder(id)
+            purchaseOrderDao.deletePurchaseOrderById(id)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            purchaseOrderDao.deletePurchaseOrderById(id)
+            Result.success(Unit)
+        }
+    }
+
+    suspend fun getPurchaseOrdersByVendor(vendorId: String): List<PurchaseOrder> {
+        return try {
+            val apiPOs = apiService.getPurchaseOrdersByVendor(vendorId)
+            purchaseOrderDao.insertPurchaseOrders(apiPOs)
+            apiPOs
+        } catch (e: Exception) {
+            purchaseOrderDao.getPurchaseOrdersByVendor(vendorId)
+        }
+    }
+
+    suspend fun getPurchaseOrdersByStatus(status: String): List<PurchaseOrder> {
+        return try {
+            val apiPOs = apiService.getPurchaseOrdersByStatus(status)
+            purchaseOrderDao.insertPurchaseOrders(apiPOs)
+            apiPOs
+        } catch (e: Exception) {
+            purchaseOrderDao.getPurchaseOrdersByStatus(status)
+        }
+    }
+
+    suspend fun getPurchaseOrdersByApprovalStatus(approvalStatus: String): List<PurchaseOrder> {
+        return try {
+            val apiPOs = apiService.getPurchaseOrdersByApprovalStatus(approvalStatus)
+            purchaseOrderDao.insertPurchaseOrders(apiPOs)
+            apiPOs
+        } catch (e: Exception) {
+            purchaseOrderDao.getPurchaseOrdersByApprovalStatus(approvalStatus)
+        }
+    }
+
+    suspend fun searchPurchaseOrders(query: String): List<PurchaseOrder> {
+        return try {
+            val apiPOs = apiService.searchPurchaseOrders(query)
+            purchaseOrderDao.insertPurchaseOrders(apiPOs)
+            apiPOs
+        } catch (e: Exception) {
+            purchaseOrderDao.searchPurchaseOrders(query)
+        }
+    }
+
+    suspend fun approvePurchaseOrder(id: String, approvedBy: String): Result<PurchaseOrder> {
+        return try {
+            val approvedPO = apiService.approvePurchaseOrder(id, approvedBy)
+            purchaseOrderDao.updatePurchaseOrder(approvedPO)
+            Result.success(approvedPO)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // Purchase Order Items
+    suspend fun getPurchaseOrderItems(purchaseOrderId: String): List<PurchaseOrderItem> {
+        return try {
+            val apiItems = apiService.getPurchaseOrderItems(purchaseOrderId)
+            purchaseOrderItemDao.insertPurchaseOrderItems(apiItems)
+            apiItems
+        } catch (e: Exception) {
+            purchaseOrderItemDao.getItemsByPurchaseOrderId(purchaseOrderId)
+        }
+    }
+
+    // Purchase Receipts
+    fun getAllPurchaseReceipts(): Flow<List<PurchaseReceipt>> = purchaseReceiptDao.getAllPurchaseReceipts()
+
+    suspend fun getPurchaseReceiptById(id: String): PurchaseReceipt? {
+        return try {
+            val apiResponse = apiService.getPurchaseReceiptById(id)
+            apiResponse?.let { purchaseReceiptDao.insertPurchaseReceipt(it) }
+            apiResponse
+        } catch (e: Exception) {
+            purchaseReceiptDao.getPurchaseReceiptById(id)
+        }
+    }
+
+    suspend fun createPurchaseReceipt(receipt: PurchaseReceipt): Result<PurchaseReceipt> {
+        return try {
+            val createdReceipt = apiService.createPurchaseReceipt(receipt)
+            purchaseReceiptDao.insertPurchaseReceipt(createdReceipt)
+            Result.success(createdReceipt)
+        } catch (e: Exception) {
+            purchaseReceiptDao.insertPurchaseReceipt(receipt)
+            Result.success(receipt)
+        }
+    }
+
+    suspend fun updatePurchaseReceipt(receipt: PurchaseReceipt): Result<PurchaseReceipt> {
+        return try {
+            val updatedReceipt = apiService.updatePurchaseReceipt(receipt.id, receipt)
+            purchaseReceiptDao.updatePurchaseReceipt(updatedReceipt)
+            Result.success(updatedReceipt)
+        } catch (e: Exception) {
+            purchaseReceiptDao.updatePurchaseReceipt(receipt)
+            Result.success(receipt)
+        }
+    }
+
+    suspend fun deletePurchaseReceipt(id: String): Result<Unit> {
+        return try {
+            apiService.deletePurchaseReceipt(id)
+            purchaseReceiptDao.deletePurchaseReceiptById(id)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            purchaseReceiptDao.deletePurchaseReceiptById(id)
+            Result.success(Unit)
+        }
+    }
+
+    suspend fun getReceiptsByPurchaseOrderId(purchaseOrderId: String): List<PurchaseReceipt> {
+        return try {
+            val apiReceipts = apiService.getReceiptsByPurchaseOrderId(purchaseOrderId)
+            purchaseReceiptDao.insertPurchaseReceipts(apiReceipts)
+            apiReceipts
+        } catch (e: Exception) {
+            purchaseReceiptDao.getReceiptsByPurchaseOrderId(purchaseOrderId)
+        }
+    }
+
+    suspend fun createReceiptFromPurchaseOrder(purchaseOrderId: String): Result<PurchaseReceipt> {
+        return try {
+            val receipt = apiService.createReceiptFromPurchaseOrder(purchaseOrderId)
+            purchaseReceiptDao.insertPurchaseReceipt(receipt)
+            Result.success(receipt)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // Purchase Receipt Items
+    suspend fun getPurchaseReceiptItems(receiptId: String): List<PurchaseReceiptItem> {
+        return try {
+            val apiItems = apiService.getPurchaseReceiptItems(receiptId)
+            purchaseReceiptItemDao.insertPurchaseReceiptItems(apiItems)
+            apiItems
+        } catch (e: Exception) {
+            purchaseReceiptItemDao.getItemsByReceiptId(receiptId)
+        }
+    }
+
+    // Purchase Invoices
+    fun getAllPurchaseInvoices(): Flow<List<PurchaseInvoice>> = purchaseInvoiceDao.getAllPurchaseInvoices()
+
+    suspend fun getPurchaseInvoiceById(id: String): PurchaseInvoice? {
+        return try {
+            val apiResponse = apiService.getPurchaseInvoiceById(id)
+            apiResponse?.let { purchaseInvoiceDao.insertPurchaseInvoice(it) }
+            apiResponse
+        } catch (e: Exception) {
+            purchaseInvoiceDao.getPurchaseInvoiceById(id)
+        }
+    }
+
+    suspend fun createPurchaseInvoice(invoice: PurchaseInvoice): Result<PurchaseInvoice> {
+        return try {
+            val createdInvoice = apiService.createPurchaseInvoice(invoice)
+            purchaseInvoiceDao.insertPurchaseInvoice(createdInvoice)
+            Result.success(createdInvoice)
+        } catch (e: Exception) {
+            purchaseInvoiceDao.insertPurchaseInvoice(invoice)
+            Result.success(invoice)
+        }
+    }
+
+    suspend fun updatePurchaseInvoice(invoice: PurchaseInvoice): Result<PurchaseInvoice> {
+        return try {
+            val updatedInvoice = apiService.updatePurchaseInvoice(invoice.id, invoice)
+            purchaseInvoiceDao.updatePurchaseInvoice(updatedInvoice)
+            Result.success(updatedInvoice)
+        } catch (e: Exception) {
+            purchaseInvoiceDao.updatePurchaseInvoice(invoice)
+            Result.success(invoice)
+        }
+    }
+
+    suspend fun deletePurchaseInvoice(id: String): Result<Unit> {
+        return try {
+            apiService.deletePurchaseInvoice(id)
+            purchaseInvoiceDao.deletePurchaseInvoiceById(id)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            purchaseInvoiceDao.deletePurchaseInvoiceById(id)
+            Result.success(Unit)
+        }
+    }
+
+    suspend fun getInvoicesByPurchaseOrderId(purchaseOrderId: String): List<PurchaseInvoice> {
+        return try {
+            val apiInvoices = apiService.getInvoicesByPurchaseOrderId(purchaseOrderId)
+            purchaseInvoiceDao.insertPurchaseInvoices(apiInvoices)
+            apiInvoices
+        } catch (e: Exception) {
+            purchaseInvoiceDao.getInvoicesByPurchaseOrderId(purchaseOrderId)
+        }
+    }
+
+    suspend fun getInvoicesByVendor(vendorId: String): List<PurchaseInvoice> {
+        return try {
+            val apiInvoices = apiService.getInvoicesByVendor(vendorId)
+            purchaseInvoiceDao.insertPurchaseInvoices(apiInvoices)
+            apiInvoices
+        } catch (e: Exception) {
+            purchaseInvoiceDao.getInvoicesByVendor(vendorId)
+        }
+    }
+
+    suspend fun getOverdueInvoices(currentDate: String): List<PurchaseInvoice> {
+        return try {
+            val apiInvoices = apiService.getOverduePurchaseInvoices(currentDate)
+            purchaseInvoiceDao.insertPurchaseInvoices(apiInvoices)
+            apiInvoices
+        } catch (e: Exception) {
+            purchaseInvoiceDao.getOverdueInvoices(currentDate)
+        }
+    }
+
+    suspend fun updateInvoicePayment(invoiceId: String, paidAmount: Double, status: String): Result<Unit> {
+        return try {
+            apiService.updatePurchaseInvoicePayment(invoiceId, paidAmount, status)
+            purchaseInvoiceDao.updatePayment(invoiceId, paidAmount, status)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            purchaseInvoiceDao.updatePayment(invoiceId, paidAmount, status)
+            Result.success(Unit)
+        }
+    }
+
+    suspend fun createInvoiceFromPurchaseOrder(purchaseOrderId: String): Result<PurchaseInvoice> {
+        return try {
+            val invoice = apiService.createInvoiceFromPurchaseOrder(purchaseOrderId)
+            purchaseInvoiceDao.insertPurchaseInvoice(invoice)
+            Result.success(invoice)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // Sync methods
+    suspend fun syncPurchaseData(): Result<Unit> {
+        return try {
+            val vendors = apiService.getAllVendors()
+            vendorDao.insertVendors(vendors)
+
+            val purchaseOrders = apiService.getAllPurchaseOrders()
+            purchaseOrderDao.insertPurchaseOrders(purchaseOrders)
+
+            val receipts = apiService.getAllPurchaseReceipts()
+            purchaseReceiptDao.insertPurchaseReceipts(receipts)
+
+            val invoices = apiService.getAllPurchaseInvoices()
+            purchaseInvoiceDao.insertPurchaseInvoices(invoices)
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun refreshVendors(): List<Vendor> {
+        return try {
+            val apiVendors = apiService.getAllVendors()
+            vendorDao.insertVendors(apiVendors)
+            apiVendors
+        } catch (e: Exception) {
+            vendorDao.getAllVendors().first()
+        }
+    }
+
+    suspend fun refreshPurchaseOrders(): List<PurchaseOrder> {
+        return try {
+            val apiPOs = apiService.getAllPurchaseOrders()
+            purchaseOrderDao.insertPurchaseOrders(apiPOs)
+            apiPOs
+        } catch (e: Exception) {
+            purchaseOrderDao.getAllPurchaseOrders().first()
+        }
+    }
+
+    suspend fun refreshPurchaseReceipts(): List<PurchaseReceipt> {
+        return try {
+            val apiReceipts = apiService.getAllPurchaseReceipts()
+            purchaseReceiptDao.insertPurchaseReceipts(apiReceipts)
+            apiReceipts
+        } catch (e: Exception) {
+            purchaseReceiptDao.getAllPurchaseReceipts().first()
+        }
+    }
+
+    suspend fun refreshPurchaseInvoices(): List<PurchaseInvoice> {
+        return try {
+            val apiInvoices = apiService.getAllPurchaseInvoices()
+            purchaseInvoiceDao.insertPurchaseInvoices(apiInvoices)
+            apiInvoices
+        } catch (e: Exception) {
+            purchaseInvoiceDao.getAllPurchaseInvoices().first()
+        }
+    }
+}

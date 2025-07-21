@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signature Data Refresh Utility</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 14px;
+        }
+        .button:hover {
+            background: #1d4ed8;
+        }
+        .danger {
+            background: #dc2626;
+        }
+        .danger:hover {
+            background: #b91c1c;
+        }
+        .success {
+            background: #16a34a;
+        }
+        .success:hover {
+            background: #15803d;
+        }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        .signature-list {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .signature-item {
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .signature-item:last-child {
+            border-bottom: none;
+        }
+        .signature-info {
+            flex: 1;
+        }
+        .signature-name {
+            font-weight: bold;
+            color: #1f2937;
+        }
+        .signature-details {
+            font-size: 12px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Signature Data Refresh Utility</h1>
+        <p>This utility helps manage the signature data cache for the PrintSoft ERP system.</p>
+        
+        <div id="status"></div>
+        
+        <div style="margin: 20px 0;">
+            <button class="button" onclick="loadSignatures()">Load Current Signatures</button>
+            <button class="button danger" onclick="clearCache()">Clear Cache</button>
+            <button class="button success" onclick="refreshSignatures()">Refresh All Data</button>
+        </div>
+        
+        <div id="signatureList"></div>
+        
+        <hr style="margin: 30px 0;">
+        
+        <h3>Development Actions</h3>
+        <div style="margin: 15px 0;">
+            <button class="button" onclick="testDepartmentFiltering()">Test Department Filtering</button>
+            <button class="button" onclick="validateSignatureData()">Validate Signature Data</button>
+        </div>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        function clearCache() {
+            try {
+                // Clear all signature-related localStorage items
+                const keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && (key.includes('signature') || key.includes('department'))) {
+                        keysToRemove.push(key);
+                    }
+                }
+                
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+                
+                showStatus(`Cleared ${keysToRemove.length} cached items`, 'success');
+                
+                // Also clear the signature list display
+                document.getElementById('signatureList').innerHTML = '';
+            } catch (error) {
+                showStatus(`Error clearing cache: ${error.message}`, 'error');
+            }
+        }
+
+        function generateSignatureData() {
+            return [
+                // Sales Department
+                { id: 'sales-1', name: 'Helen Achieng', title: 'Sales Manager', department: 'Sales', email: 'helen.achieng@company.com', imageUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b386?w=150&h=100&fit=crop&crop=face' },
+                { id: 'sales-2', name: 'Mark Thompson', title: 'Senior Sales Representative', department: 'Sales', email: 'mark.thompson@company.com', imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=100&fit=crop&crop=face' },
+                
+                // Finance Department
+                { id: 'finance-1', name: 'Sarah Wilson', title: 'Finance Director', department: 'Finance', email: 'sarah.wilson@company.com', imageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=100&fit=crop&crop=face' },
+                { id: 'finance-2', name: 'David Chen', title: 'Senior Accountant', department: 'Finance', email: 'david.chen@company.com', imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=100&fit=crop&crop=face' },
+                
+                // Purchasing Department
+                { id: 'purchasing-1', name: 'Maria Rodriguez', title: 'Purchasing Manager', department: 'Purchasing', email: 'maria.rodriguez@company.com', imageUrl: 'https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=150&h=100&fit=crop&crop=face' },
+                { id: 'purchasing-2', name: 'James Miller', title: 'Procurement Specialist', department: 'Purchasing', email: 'james.miller@company.com', imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=100&fit=crop&crop=face' },
+                
+                // Operations Department  
+                { id: 'operations-1', name: 'Lisa Anderson', title: 'Operations Manager', department: 'Operations', email: 'lisa.anderson@company.com', imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=100&fit=crop&crop=face' },
+                { id: 'operations-2', name: 'Kevin Park', title: 'Operations Coordinator', department: 'Operations', email: 'kevin.park@company.com', imageUrl: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=100&fit=crop&crop=face' },
+                
+                // Executive Department
+                { id: 'executive-1', name: 'Robert Johnson', title: 'Chief Executive Officer', department: 'Executive', email: 'robert.johnson@company.com', imageUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=100&fit=crop&crop=face' },
+                { id: 'executive-2', name: 'Emily Davis', title: 'Chief Operating Officer', department: 'Executive', email: 'emily.davis@company.com', imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=100&fit=crop&crop=face' },
+                
+                // Quality Department
+                { id: 'quality-1', name: 'Michael Brown', title: 'Quality Assurance Manager', department: 'Quality', email: 'michael.brown@company.com', imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=100&fit=crop&crop=face' },
+                { id: 'quality-2', name: 'Amanda Lee', title: 'Quality Control Specialist', department: 'Quality', email: 'amanda.lee@company.com', imageUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=100&fit=crop&crop=face' }
+            ];
+        }
+
+        function loadSignatures() {
+            try {
+                // Check localStorage first
+                let signatures = JSON.parse(localStorage.getItem('authorizedSignatures') || 'null');
+                
+                if (!signatures) {
+                    // Generate and store new signature data
+                    signatures = generateSignatureData();
+                    localStorage.setItem('authorizedSignatures', JSON.stringify(signatures));
+                    showStatus('Generated and loaded fresh signature data', 'success');
+                } else {
+                    showStatus('Loaded signatures from cache', 'info');
+                }
+                
+                displaySignatures(signatures);
+            } catch (error) {
+                showStatus(`Error loading signatures: ${error.message}`, 'error');
+            }
+        }
+
+        function refreshSignatures() {
+            try {
+                // Clear cache first
+                clearCache();
+                
+                // Generate fresh data
+                const signatures = generateSignatureData();
+                localStorage.setItem('authorizedSignatures', JSON.stringify(signatures));
+                
+                // Also set department mappings
+                const departmentMappings = {
+                    'quotation': 'Sales',
+                    'sales_order': 'Sales', 
+                    'invoice': 'Finance',
+                    'payment_receipt': 'Finance',
+                    'purchase_order': 'Purchasing'
+                };
+                localStorage.setItem('departmentMappings', JSON.stringify(departmentMappings));
+                
+                showStatus('Successfully refreshed all signature data!', 'success');
+                displaySignatures(signatures);
+                
+                // Dispatch custom event to notify the app
+                window.dispatchEvent(new CustomEvent('signatureDataRefreshed', {
+                    detail: { signatures, departmentMappings }
+                }));
+                
+            } catch (error) {
+                showStatus(`Error refreshing signatures: ${error.message}`, 'error');
+            }
+        }
+
+        function displaySignatures(signatures) {
+            const listDiv = document.getElementById('signatureList');
+            
+            if (!signatures || signatures.length === 0) {
+                listDiv.innerHTML = '<div class="signature-list"><p>No signatures found</p></div>';
+                return;
+            }
+            
+            // Group by department
+            const groupedSignatures = signatures.reduce((groups, sig) => {
+                const dept = sig.department;
+                if (!groups[dept]) groups[dept] = [];
+                groups[dept].push(sig);
+                return groups;
+            }, {});
+            
+            let html = '<h3>Current Authorized Signatures</h3>';
+            
+            Object.keys(groupedSignatures).forEach(department => {
+                html += `<div class="signature-list">
+                    <h4>${department} Department</h4>`;
+                
+                groupedSignatures[department].forEach(signature => {
+                    html += `<div class="signature-item">
+                        <div class="signature-info">
+                            <div class="signature-name">${signature.name}</div>
+                            <div class="signature-details">${signature.title} • ${signature.email}</div>
+                        </div>
+                        <div style="font-size: 12px; color: #6b7280;">ID: ${signature.id}</div>
+                    </div>`;
+                });
+                
+                html += '</div>';
+            });
+            
+            listDiv.innerHTML = html;
+        }
+
+        function testDepartmentFiltering() {
+            try {
+                const signatures = JSON.parse(localStorage.getItem('authorizedSignatures') || '[]');
+                const mappings = {
+                    'quotation': 'Sales',
+                    'sales_order': 'Sales', 
+                    'invoice': 'Finance',
+                    'payment_receipt': 'Finance',
+                    'purchase_order': 'Purchasing'
+                };
+                
+                let testResults = '<h3>Department Filtering Test Results</h3>';
+                
+                Object.keys(mappings).forEach(docType => {
+                    const dept = mappings[docType];
+                    const filtered = signatures.filter(sig => sig.department === dept);
+                    testResults += `<div class="signature-list">
+                        <strong>${docType}</strong> → ${dept} Department: ${filtered.length} signatures
+                        <br><small>${filtered.map(s => s.name).join(', ')}</small>
+                    </div>`;
+                });
+                
+                document.getElementById('signatureList').innerHTML = testResults;
+                showStatus('Department filtering test completed', 'success');
+            } catch (error) {
+                showStatus(`Error testing department filtering: ${error.message}`, 'error');
+            }
+        }
+
+        function validateSignatureData() {
+            try {
+                const signatures = JSON.parse(localStorage.getItem('authorizedSignatures') || '[]');
+                const required = ['id', 'name', 'title', 'department', 'email'];
+                
+                let valid = true;
+                let errors = [];
+                
+                signatures.forEach((sig, index) => {
+                    required.forEach(field => {
+                        if (!sig[field]) {
+                            valid = false;
+                            errors.push(`Signature ${index + 1}: Missing ${field}`);
+                        }
+                    });
+                });
+                
+                if (valid) {
+                    showStatus(`All ${signatures.length} signatures are valid!`, 'success');
+                } else {
+                    showStatus(`Validation failed: ${errors.join(', ')}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error validating signatures: ${error.message}`, 'error');
+            }
+        }
+
+        // Load signatures on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSignatures();
+        });
+    </script>
+</body>
+</html>

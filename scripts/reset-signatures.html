@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reset Signature System</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin: 20px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .info { background: #cce7ff; color: #004085; border: 1px solid #b3d7ff; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Signature System Reset Tool</h1>
+    
+    <div class="info">
+        <strong>Instructions:</strong>
+        <ol>
+            <li>Click "Clear All Data" to remove old signature data</li>
+            <li>Refresh your app to load fresh default signatures</li>
+            <li>Check that "Helen Achieng" appears in Settings → Signatures</li>
+        </ol>
+    </div>
+
+    <button onclick="clearAllData()">Clear All Data</button>
+    <button onclick="checkCurrentData()">Check Current Data</button>
+    <button onclick="forceRefresh()">Force App Refresh</button>
+    
+    <div id="result"></div>
+
+    <script>
+        function showResult(message, type = 'info') {
+            const result = document.getElementById('result');
+            result.className = `result ${type}`;
+            result.innerHTML = message;
+        }
+
+        function clearAllData() {
+            try {
+                // Clear all localStorage
+                localStorage.clear();
+                
+                showResult('✅ All localStorage data cleared successfully!<br>Now refresh your PrintSoftERP app to load fresh signatures.', 'success');
+                
+                console.log('🗑️ localStorage cleared completely');
+            } catch (error) {
+                showResult('❌ Error clearing data: ' + error.message, 'error');
+            }
+        }
+
+        function checkCurrentData() {
+            try {
+                const settings = localStorage.getItem('system_settings');
+                
+                if (!settings) {
+                    showResult('ℹ️ No system settings found in localStorage.<br>This is expected after clearing data.', 'info');
+                    return;
+                }
+
+                const parsed = JSON.parse(settings);
+                const signatures = parsed.authorizedSignatures || [];
+                
+                let html = `<strong>📋 Found ${signatures.length} signatures:</strong><br>`;
+                signatures.forEach((sig, i) => {
+                    html += `${i + 1}. ${sig.name} - ${sig.title} (${sig.department})<br>`;
+                });
+                
+                html += `<br><strong>⚙️ Signature Settings:</strong><br>`;
+                html += `Enabled: ${parsed.signatures?.enabled ? 'Yes' : 'No'}<br>`;
+                html += `Show on Documents: ${parsed.signatures?.showOnDocuments ? 'Yes' : 'No'}`;
+                
+                showResult(html, 'info');
+                
+                console.log('📊 Current signature data:', parsed.authorizedSignatures);
+            } catch (error) {
+                showResult('❌ Error reading data: ' + error.message, 'error');
+            }
+        }
+
+        function forceRefresh() {
+            // Trigger storage event to force app refresh
+            window.localStorage.setItem('force_refresh', Date.now().toString());
+            window.localStorage.removeItem('force_refresh');
+            
+            // Trigger custom signature update event
+            window.dispatchEvent(new CustomEvent('signatureUpdated'));
+            
+            showResult('🔄 Refresh events triggered.<br>Switch back to your app - it should reload signature data.', 'success');
+        }
+
+        // Auto-check current data on page load
+        window.onload = function() {
+            checkCurrentData();
+        }
+    </script>
+</body>
+</html>
