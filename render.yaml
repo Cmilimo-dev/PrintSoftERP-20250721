@@ -18,7 +18,7 @@ services:
         generateValue: true
       - key: DATABASE_URL
         sync: false
-        # Will be set manually after deployment
+        # Will be set manually with your existing database URL
 
   # Frontend Static Site
   - type: web

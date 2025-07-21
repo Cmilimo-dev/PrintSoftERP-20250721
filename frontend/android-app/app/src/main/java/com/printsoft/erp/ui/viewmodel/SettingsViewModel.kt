@@ -1,12 +1,7 @@
 package com.printsoft.erp.ui.viewmodel
 
-// TODO: Implement Settings DAOs and repository, then re-enable this ViewModel
-// Temporarily disabled due to missing SettingsRepository
-/*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.printsoft.erp.data.model.*
-import com.printsoft.erp.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,28 +9,55 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+// Data classes for settings (mocked since models are not available)
+data class CompanySettings(
+    val name: String = "",
+    val address: String = "",
+    val phone: String = "",
+    val email: String = ""
+)
+
+data class SystemSettings(
+    val language: String = "en",
+    val theme: String = "light"
+)
+
+data class TaxSettings(
+    val defaultRate: Double = 0.0
+)
+
+data class EtimsSettings(
+    val enabled: Boolean = false
+)
+
+data class UserProfile(
+    val name: String = "",
+    val email: String = ""
+)
+
+data class UserRole(
+    val id: String = "",
+    val name: String = ""
+)
+
+data class Permission(
+    val id: String = "",
+    val name: String = ""
+)
+
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val settingsRepository: SettingsRepository
+    // Mock implementation without repository dependency
 ) : ViewModel() {
 
     private val _companySettings = MutableStateFlow<CompanySettings?>(null)
     val companySettings: StateFlow<CompanySettings?> = _companySettings.asStateFlow()
-
-    private val _displaySettings = MutableStateFlow<CompanyDisplaySettings?>(null)
-    val displaySettings: StateFlow<CompanyDisplaySettings?> = _displaySettings.asStateFlow()
-
-    private val _documentSettings = MutableStateFlow<List<DocumentSettings>>(emptyList())
-    val documentSettings: StateFlow<List<DocumentSettings>> = _documentSettings.asStateFlow()
 
     private val _etimsSettings = MutableStateFlow<EtimsSettings?>(null)
     val etimsSettings: StateFlow<EtimsSettings?> = _etimsSettings.asStateFlow()
 
     private val _taxSettings = MutableStateFlow<TaxSettings?>(null)
     val taxSettings: StateFlow<TaxSettings?> = _taxSettings.asStateFlow()
-
-    private val _autoNumberingSettings = MutableStateFlow<List<AutoNumberingSettings>>(emptyList())
-    val autoNumberingSettings: StateFlow<List<AutoNumberingSettings>> = _autoNumberingSettings.asStateFlow()
 
     private val _systemSettings = MutableStateFlow<SystemSettings?>(null)
     val systemSettings: StateFlow<SystemSettings?> = _systemSettings.asStateFlow()
@@ -63,33 +85,26 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             _loading.value = true
             try {
-                settingsRepository.getCompanySettings().collect {
-                    _companySettings.value = it
-                }
-                settingsRepository.getDisplaySettings().collect {
-                    _displaySettings.value = it
-                }
-                settingsRepository.getDocumentSettings().collect {
-                    _documentSettings.value = it
-                }
-                settingsRepository.getEtimsSettings().collect {
-                    _etimsSettings.value = it
-                }
-                settingsRepository.getTaxSettings().collect {
-                    _taxSettings.value = it
-                }
-                settingsRepository.getAutoNumberingSettings().collect {
-                    _autoNumberingSettings.value = it
-                }
-                settingsRepository.getSystemSettings().collect {
-                    _systemSettings.value = it
-                }
-                settingsRepository.getUserRoles().collect {
-                    _userRoles.value = it
-                }
-                settingsRepository.getPermissions().collect {
-                    _permissions.value = it
-                }
+                // Mock data loading
+                _companySettings.value = CompanySettings(
+                    name = "PrintSoft ERP",
+                    address = "123 Business St",
+                    phone = "+1 234 567 8900",
+                    email = "info@printsoft.com"
+                )
+                _etimsSettings.value = EtimsSettings(enabled = false)
+                _taxSettings.value = TaxSettings(defaultRate = 16.0)
+                _systemSettings.value = SystemSettings(language = "en", theme = "light")
+                _userProfile.value = UserProfile(name = "Admin User", email = "admin@printsoft.com")
+                _userRoles.value = listOf(
+                    UserRole(id = "1", name = "Administrator"),
+                    UserRole(id = "2", name = "User")
+                )
+                _permissions.value = listOf(
+                    Permission(id = "1", name = "Read"),
+                    Permission(id = "2", name = "Write"),
+                    Permission(id = "3", name = "Admin")
+                )
                 _loading.value = false
             } catch (e: Exception) {
                 _loading.value = false
@@ -266,4 +281,3 @@ class SettingsViewModel @Inject constructor(
         _error.value = null
     }
 }
-*/
