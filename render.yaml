@@ -24,8 +24,9 @@ services:
   # Frontend Static Site
   - type: static
     name: printsoft-erp-frontend
-    buildCommand: cd frontend && npm install && npm run build
-    publishPath: frontend/dist
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishPath: dist
     buildFilter:
       paths:
         - frontend/**
