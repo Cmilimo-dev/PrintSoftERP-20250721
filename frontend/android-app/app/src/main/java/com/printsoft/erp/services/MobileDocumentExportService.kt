@@ -206,8 +206,6 @@ class MobileDocumentExportService(private val context: Context) {
             shareFile(file, "application/pdf")
         }
         
-Result.success(file.absolutePath)
-        }
         return Result.success(file.absolutePath)
     }
 
@@ -315,7 +313,7 @@ Result.success(file.absolutePath)
             shareFile(file, "text/html")
         }
         
-        Result.success(file.absolutePath)
+        return Result.success(file.absolutePath)
     }
 
     /**
@@ -381,7 +379,7 @@ Result.success(file.absolutePath)
         chooser.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         context.startActivity(chooser)
         
-        Result.success(text)
+        return Result.success(text)
     }
 
     /**
@@ -409,7 +407,7 @@ Result.success(file.absolutePath)
             PrintAttributes.Builder().build()
         )
         
-        Result.success("Print job initiated: ${printJob.info?.label}")
+        return Result.success("Print job initiated: ${printJob.info?.label}")
     }
 
     /**
@@ -442,7 +440,7 @@ Result.success(file.absolutePath)
             shareFile(file, "image/png")
         }
         
-        Result.success(file.absolutePath)
+        return Result.success(file.absolutePath)
     }
 
     /**
@@ -507,7 +505,7 @@ Result.success(file.absolutePath)
             shareFile(file, "image/*")
         }
         
-        Result.success(file.absolutePath)
+        return Result.success(file.absolutePath)
     }
 
     private fun generateDocumentContent(document: Any, documentType: String): DocumentContent {
