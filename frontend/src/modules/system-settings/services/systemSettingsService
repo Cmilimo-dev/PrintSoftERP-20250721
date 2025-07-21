@@ -1,0 +1,4 @@
+// Placeholder for SystemSettingsService
+export const SystemSettingsService = {
+  resetSettings: () => true,
+};
